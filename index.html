@@ -1,32 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINAL SENTENCE | TYPE OR DIE</title>
+    <title>HACK- | THE MIRROR</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="vignette"></div>
-    <div class="game-container">
-        <div id="stats">
-            <span>LEVEL: <span id="level">1</span></span>
-            <span>CHAMBER: <span id="status">SAFE</span></span>
-        </div>
-        
-        <div class="chamber-visual">
-            <div id="cylinder" class="idle"></div>
-        </div>
+    <video id="webcam" autoplay playsinline></video>
+    <div class="scanline"></div>
+    <div class="overlay"></div>
 
-        <div id="sentence-display">TYPE TO START</div>
-        
-        <div class="input-wrapper">
-            <input type="text" id="typer" placeholder="..." autofocus autocomplete="off">
-            <div id="timer-bar"></div>
+    <div class="terminal">
+        <div id="data-stream">Scanning metadata...</div>
+        <div id="target-box">
+            <h1 id="warning">SUBJECT DETECTED</h1>
+            <p id="sentence-display">MOHON TUNGGU...</p>
+            <input type="text" id="typer" autocomplete="off" autofocus>
         </div>
-
-        <div id="message">"One wrong character, one life lost."</div>
+        <div id="timer-line"></div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
