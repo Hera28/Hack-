@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hack- Terminal</title>
+    <title>FINAL SENTENCE | TYPE OR DIE</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="overlay"></div>
-    <div class="terminal">
-        <div class="header">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
-            <span class="title">SYSTEM ACCESS - HACK- PROJECT</span>
+    <div class="vignette"></div>
+    <div class="game-container">
+        <div id="stats">
+            <span>LEVEL: <span id="level">1</span></span>
+            <span>CHAMBER: <span id="status">SAFE</span></span>
         </div>
-        <div class="output-container" id="terminal-output">
-            <div class="line">Initializing system... [DONE]</div>
-            <div class="line">Loading Hack- core modules... [DONE]</div>
-            <div class="line">Welcome, user. Type 'help' to see available commands.</div>
+        
+        <div class="chamber-visual">
+            <div id="cylinder" class="idle"></div>
         </div>
-        <div class="input-area">
-            <span class="prompt">root@hack-~#</span>
-            <input type="text" id="user-input" autofocus autocomplete="off">
+
+        <div id="sentence-display">TYPE TO START</div>
+        
+        <div class="input-wrapper">
+            <input type="text" id="typer" placeholder="..." autofocus autocomplete="off">
+            <div id="timer-bar"></div>
         </div>
+
+        <div id="message">"One wrong character, one life lost."</div>
     </div>
     <script src="script.js"></script>
 </body>
