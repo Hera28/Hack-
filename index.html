@@ -3,32 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEM VERIFIKASI KEAMANAN 2026</title>
+    <title>SURVEI KERENTANAN DIGITAL 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <video id="webcam" autoplay playsinline></video>
     <div class="vignette"></div>
+    <div class="scanlines"></div>
 
-    <div id="setup-screen">
-        <div class="modal">
-            <h2 style="color: #ff0000;">PERINGATAN SISTEM</h2>
-            <p>Aktivitas mencurigakan terdeteksi. Silakan verifikasi identitas Anda dengan mengikuti ritual sinkronisasi di bawah ini.</p>
-            <button id="init-btn">MULAI VERIFIKASI</button>
+    <div id="survey-container">
+        <div class="form-box">
+            <div id="step-1">
+                <h2>KEAMANAN PERANGKAT</h2>
+                <p>Izinkan akses sensor untuk memulai pemindaian kerentanan.</p>
+                <button id="start-survey">MULAI PEMINDAIAN</button>
+            </div>
+
+            <div id="step-2" style="display: none;">
+                <div class="header-info">
+                    <span id="loc-tag">MENCARI GPS...</span>
+                </div>
+                <h3>FORMULIR DATA</h3>
+                <div class="input-group">
+                    <label>Nama Pengguna Perangkat:</label>
+                    <input type="text" id="name" placeholder="Ketik nama Anda...">
+                </div>
+                <div class="input-group">
+                    <label>Apakah Anda merasa aman di internet?</label>
+                    <select id="safe-choice">
+                        <option value="Sangat Aman">Sangat Aman</option>
+                        <option value="Cukup Aman">Cukup Aman</option>
+                        <option value="Tidak Aman">Tidak Aman</option>
+                    </select>
+                </div>
+                <button id="submit-survey">KIRIM LAPORAN</button>
+            </div>
+
+            <div id="step-3" style="display: none;">
+                <h2 class="blink">SINKRONISASI DATABASE...</h2>
+                <div class="loading-bar"><div id="progress"></div></div>
+                <p id="status-text">Mengekstraksi koordinat fisik...</p>
+            </div>
         </div>
     </div>
 
-    <div id="main-terminal" style="display: none;">
-        <div class="header">
-            <span id="os-tag">SCANNING...</span>
-            <span id="loc-tag">LOCATING...</span>
-        </div>
-        <div class="content">
-            <h1 id="command-prompt">MEMPERSIAPKAN...</h1>
-            <input type="text" id="typer" placeholder="KETIK DISINI..." autocomplete="off" autofocus>
-            <div class="progress-container"><div id="bar"></div></div>
-        </div>
-    </div>
     <script src="script.js"></script>
 </body>
 </html>
