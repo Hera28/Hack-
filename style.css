@@ -1,13 +1,63 @@
-/* Update atau tambah bagian ini di style.css */
-.status-box {
-    text-align: left;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    color: #00ff00; /* Warna hijau hacker */
+body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: #050505; color: #00ff41; /* Hijau Matrix */
     font-family: 'Courier New', Courier, monospace;
-    border-left: 3px solid #ff3333;
+    overflow: hidden;
 }
 
-.status-box p { margin: 5px 0; }
+#webcam {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; z-index: -2;
+    filter: brightness(0.2) contrast(1.2) grayscale(0.5);
+}
+
+.vignette {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle, transparent 20%, #000 150%);
+    z-index: -1;
+}
+
+.wrapper {
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; width: 100%;
+}
+
+.form-box {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 40px; border: 1px solid #ff0000;
+    width: 350px; text-align: center;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+    border-radius: 5px;
+}
+
+h2 { font-size: 1.2rem; color: #ff3333; text-shadow: 0 0 10px #ff0000; }
+#sub-text { font-size: 0.8rem; color: #ccc; margin-bottom: 20px; }
+
+.input-group { text-align: left; margin: 25px 0; }
+label { font-size: 0.7rem; text-transform: uppercase; color: #ff3333; }
+
+input {
+    width: 100%; padding: 12px; margin-top: 5px;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid #333; color: #00ff41;
+    box-sizing: border-box; outline: none;
+    font-family: inherit; font-size: 1rem;
+}
+
+input:focus { border-color: #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, 0.3); }
+
+.status-box {
+    text-align: left; background: #111;
+    padding: 15px; border-left: 3px solid #ff3333;
+    font-size: 0.8rem; margin: 20px 0;
+}
+
+.status-box p { margin: 8px 0; }
+
+.blink { animation: b 1s infinite; }
+@keyframes b { 50% { opacity: 0; } }
+
+.loading-bar { width: 100%; height: 5px; background: #222; margin: 20px 0; }
+#progress { width: 0%; height: 100%; background: #ff3333; box-shadow: 0 0 10px #ff0000; transition: 0.5s; }
