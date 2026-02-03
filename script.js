@@ -1,37 +1,60 @@
-const input = document.getElementById('user-input');
-const output = document.getElementById('terminal-output');
+const sentences = [
+    "I beg for mercy",
+    "Forgive my digital sins",
+    "The machine is hungry",
+    "My fingers are my life",
+    "Empty chambers tell no lies",
+    "Death is just a syntax error",
+    "The final sentence awaits us all"
+];
 
-const commands = {
-    'help': 'Available commands: help, about, hack, clear',
-    'about': 'Hack- Project v1.0.0. A terminal interface for GitHub Pages.',
-    'hack': 'Scanning ports... Accessing mainframe... [SUCCESS] JUST KIDDING!',
-    'clear': 'CLEAR'
-};
+let currentLevel = 1;
+let timeLeft = 5000; 
+let timer;
+const typer = document.getElementById('typer');
+const display = document.getElementById('sentence-display');
+const timerBar = document.getElementById('timer-bar');
 
-input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        const val = input.value.toLowerCase().trim();
-        const line = document.createElement('div');
-        line.innerHTML = `<span class="prompt">root@hack-~#</span> ${val}`;
-        output.appendChild(line);
+function startGame() {
+    typer.value = '';
+    const randomSent = sentences[Math.floor(Math.random() * sentences.length)];
+    display.textContent = randomSent;
+    
+    let duration = Math.max(2000, 6000 - (currentLevel * 400)); // Makin level tinggi, makin cepat
+    
+    timerBar.style.transition = 'none';
+    timerBar.style.width = '100%';
+    
+    setTimeout(() => {
+        timerBar.style.transition = `width ${duration}ms linear`;
+        timerBar.style.width = '0%';
+    }, 10);
 
-        if (commands[val]) {
-            if (val === 'clear') {
-                output.innerHTML = '';
-            } else {
-                const response = document.createElement('div');
-                response.textContent = commands[val];
-                response.style.color = '#fff';
-                output.appendChild(response);
-            }
-        } else {
-            const error = document.createElement('div');
-            error.textContent = `Command not found: ${val}`;
-            error.style.color = 'red';
-            output.appendChild(error);
-        }
+    clearTimeout(timer);
+    timer = setTimeout(gameOver, duration);
+}
 
-        input.value = '';
-        output.scrollTop = output.scrollHeight;
+typer.addEventListener('input', () => {
+    if (typer.value.toLowerCase() === display.textContent.toLowerCase()) {
+        currentLevel++;
+        document.getElementById('level').textContent = currentLevel;
+        document.body.style.backgroundColor = '#0a1a0a';
+        setTimeout(() => document.body.style.backgroundColor = '#050505', 200);
+        startGame();
     }
 });
+
+function gameOver() {
+    display.textContent = "BANG! YOU DIED.";
+    document.body.classList.add('death');
+    typer.disabled = true;
+    setTimeout(() => {
+        alert(`Game Over! Level Reached: ${currentLevel}`);
+        location.reload();
+    }, 1000);
+}
+
+// Start on first keypress
+window.addEventListener('keydown', (e) => {
+    if (display.textContent === "TYPE TO START") startGame();
+}, { once: true });
