@@ -2,89 +2,78 @@ const landing = document.getElementById('landing-page');
 const game = document.getElementById('game-container');
 const startBtn = document.getElementById('start-btn');
 const typer = document.getElementById('typer');
-const display = document.getElementById('sentence-display');
-const locDisplay = document.getElementById('location-data');
-const dataStream = document.getElementById('data-stream');
+const displayText = document.getElementById('display-text');
+const osInfo = document.getElementById('os-info');
+const locInfo = document.getElementById('loc-info');
 const video = document.getElementById('webcam');
+const progress = document.getElementById('progress-bar');
 
-const rituals = [
-    "SAYA SADAR DATA SAYA TERBUKA.",
-    "BROWSING SAYA BUKAN RAHASIA.",
-    "LOKASI SAYA DAPAT DILACAK.",
-    "PRIVASI ADALAH ILUSI.",
-    "SAYA AKAN LEBIH WASPADA."
+const levels = [
+    "SAYA MELIHAT DIRI SAYA.",
+    "SAYA MEMBERI IZIN.",
+    "JANGAN BERHENTI MENGETIK.",
+    "MEREKA ADA DI DALAM KABEL.",
+    "SAYA ADALAH DATA."
 ];
 
-let level = 0;
+let currentLevel = 0;
 
-// Mulai Game
-startBtn.addEventListener('click', () => {
-    landing.classList.add('hidden');
-    game.classList.add('active');
-    video.style.display = "block";
-    initiateTracking();
-});
-
-async function initiateTracking() {
-    // 1. Ambil Metadata Browser
-    dataStream.textContent = `DEVICE: ${navigator.platform} | BROWSER: ${navigator.userAgent.split(' ')[0]}`;
-
-    // 2. Ambil Lokasi (Edukasi)
+startBtn.addEventListener('click', async () => {
+    landing.style.display = 'none';
+    game.style.display = 'flex';
+    
+    // Metadata
+    osInfo.textContent = `SYSTEM: ${navigator.platform}`;
+    
+    // Geolocation
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            const lat = pos.coords.latitude.toFixed(4);
-            const lon = pos.coords.longitude.toFixed(4);
-            locDisplay.textContent = `MENDETEKSI KOORDINAT: ${lat}, ${lon}`;
-            
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-                const d = await res.json();
-                locDisplay.textContent += ` | AREA: ${d.address.city || d.address.town}`;
-            } catch(e) {}
-        }, () => {
-            locDisplay.textContent = "LOKASI: AKSES DITOLAK USER (BAIK!)";
+        navigator.geolocation.getCurrentPosition(pos => {
+            locInfo.textContent = `LOC: ${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`;
         });
     }
 
-    // 3. Ambil Kamera
+    // Camera
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
-    } catch (err) {
-        dataStream.textContent += " | CAMERA: BLOCKED";
-    }
+    } catch (e) {}
 
-    nextLevel();
-}
+    showLevel();
+});
 
-function nextLevel() {
-    if (level < rituals.length) {
-        display.textContent = rituals[level];
+function showLevel() {
+    if (currentLevel < levels.length) {
+        displayText.textContent = levels[currentLevel];
         typer.value = "";
-        level++;
+        progress.style.width = `${(currentLevel / levels.length) * 100}%`;
     } else {
-        showEducationEnd();
+        endGame();
     }
 }
 
 typer.addEventListener('input', () => {
-    if (typer.value.toUpperCase() === rituals[level - 1].toUpperCase()) {
-        nextLevel();
+    if (typer.value.toUpperCase() === levels[currentLevel].toUpperCase()) {
+        currentLevel++;
+        showLevel();
     }
 });
 
-function showEducationEnd() {
-    game.innerHTML = `
-        <div class="warning-box" style="border-color: #00ff00; color: #00ff00;">
-            <h1>SECURITY CHECK COMPLETE</h1>
-            <p>Apa yang Anda lihat adalah data yang bisa diambil oleh website mana pun jika Anda memberikan izin.</p>
-            <ul style="text-align: left; font-size: 0.9rem;">
-                <li><b>Kamera:</b> Bisa merekam tanpa Anda sadari.</li>
-                <li><b>Lokasi:</b> Melacak posisi fisik Anda.</li>
-                <li><b>Metadata:</b> Mengetahui jenis perangkat Anda.</li>
-            </ul>
-            <p>Selalu periksa izin (Permissions) di browser Anda!</p>
-            <button onclick="location.reload()">RESTART SIMULASI</button>
-        </div>
-    `;
+function endGame() {
+    displayText.style.color = "white";
+    displayText.textContent = "UPLOADING CONSCIOUSNESS...";
+    typer.style.display = "none";
+    progress.style.width = "100%";
+    
+    setTimeout(() => {
+        document.body.style.backgroundColor = "white";
+        setTimeout(() => {
+            document.body.innerHTML = `
+                <div style="background:black; color:red; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:20px;">
+                    <h1>GOODBYE USER</h1>
+                    <p>SESSION RECORDED. LOCATION PINNED. SOUL COPIED.</p>
+                    <p style="font-size:10px; opacity:0.5;">Jangan lupa tutup kameramu.</p>
+                </div>
+            `;
+        }, 100);
+    }, 2000);
 }
