@@ -1,60 +1,45 @@
-const sentences = [
-    "I beg for mercy",
-    "Forgive my digital sins",
-    "The machine is hungry",
-    "My fingers are my life",
-    "Empty chambers tell no lies",
-    "Death is just a syntax error",
-    "The final sentence awaits us all"
-];
-
-let currentLevel = 1;
-let timeLeft = 5000; 
-let timer;
 const typer = document.getElementById('typer');
 const display = document.getElementById('sentence-display');
-const timerBar = document.getElementById('timer-bar');
+const dataStream = document.getElementById('data-stream');
+const video = document.getElementById('webcam');
 
-function startGame() {
-    typer.value = '';
-    const randomSent = sentences[Math.floor(Math.random() * sentences.length)];
-    display.textContent = randomSent;
-    
-    let duration = Math.max(2000, 6000 - (currentLevel * 400)); // Makin level tinggi, makin cepat
-    
-    timerBar.style.transition = 'none';
-    timerBar.style.width = '100%';
-    
-    setTimeout(() => {
-        timerBar.style.transition = `width ${duration}ms linear`;
-        timerBar.style.width = '0%';
-    }, 10);
+// Ambil data user
+const browser = navigator.userAgent.split(') ')[0].split(' (')[1];
+const platform = navigator.platform;
 
-    clearTimeout(timer);
-    timer = setTimeout(gameOver, duration);
+// Kalimat ritual yang makin personal
+const rituals = [
+    "Saya mengizinkan sistem mengakses privasi saya.",
+    `Saya sadar saya menggunakan ${platform}.`,
+    "Mata digital ini sedang menatap saya.",
+    "Data saya adalah harga yang harus saya bayar.",
+    "Selesai. Kamu telah terhapus."
+];
+
+let level = 0;
+
+// Akses Kamera
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => { video.srcObject = stream; })
+    .catch(err => { dataStream.textContent = "CAMERA ACCESS DENIED. SUBJECT IS HIDING."; });
+
+function nextLevel() {
+    if (level < rituals.length) {
+        display.textContent = rituals[level];
+        typer.value = "";
+        level++;
+    } else {
+        document.body.innerHTML = "<h1 style='color:red; text-align:center; width:100%;'>SISTEM BERHASIL MENGUASAI PERANGKAT ANDA.</h1>";
+    }
 }
 
 typer.addEventListener('input', () => {
-    if (typer.value.toLowerCase() === display.textContent.toLowerCase()) {
-        currentLevel++;
-        document.getElementById('level').textContent = currentLevel;
-        document.body.style.backgroundColor = '#0a1a0a';
-        setTimeout(() => document.body.style.backgroundColor = '#050505', 200);
-        startGame();
+    if (typer.value === rituals[level - 1]) {
+        nextLevel();
+        dataStream.textContent = `UPDATING_MANIFEST_V${level}.0... [SUCCESS]`;
     }
 });
 
-function gameOver() {
-    display.textContent = "BANG! YOU DIED.";
-    document.body.classList.add('death');
-    typer.disabled = true;
-    setTimeout(() => {
-        alert(`Game Over! Level Reached: ${currentLevel}`);
-        location.reload();
-    }, 1000);
-}
-
-// Start on first keypress
-window.addEventListener('keydown', (e) => {
-    if (display.textContent === "TYPE TO START") startGame();
-}, { once: true });
+// Init
+dataStream.textContent = `TARGET_OS: ${platform} | SESSION_ID: ${Math.floor(Math.random()*99999)}`;
+nextLevel();
