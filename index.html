@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SURVEI KEAMANAN 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SISTEM VERIFIKASI 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,35 +14,26 @@
         <div class="form-box">
             <div id="step-1">
                 <h2>KEAMANAN PERANGKAT</h2>
-                <p>Izinkan akses sensor untuk mulai pemindaian kerentanan.</p>
+                <p>Sinkronisasi sensor diperlukan untuk pemindaian kerentanan.</p>
                 <button id="start-survey">MULAI PEMINDAIAN</button>
             </div>
 
             <div id="step-2" style="display: none;">
-                <h3>FORMULIR DATA</h3>
+                <h3>FORMULIR VERIFIKASI</h3>
                 <div class="input-group">
                     <label>Nama Pengguna:</label>
-                    <input type="text" id="name" placeholder="Ketik nama lalu tekan Enter..." autocomplete="off">
+                    <input type="text" id="name" placeholder="Ketik nama lalu Enter..." autocomplete="off">
                 </div>
-                <div class="input-group">
-                    <label>Status Keamanan:</label>
-                    <select id="safe-choice">
-                        <option value="Sangat Aman">Sangat Aman</option>
-                        <option value="Cukup Aman">Cukup Aman</option>
-                        <option value="Tidak Aman">Tidak Aman</option>
-                    </select>
-                </div>
-                <button id="submit-survey">KIRIM (ENTER)</button>
+                <button id="submit-survey">KIRIM DATA (ENTER)</button>
             </div>
 
             <div id="step-3" style="display: none;">
-                <h2 class="blink">SINKRONISASI DATABASE...</h2>
+                <h2 class="blink">MENGIRIM LAPORAN...</h2>
                 <div class="loading-bar"><div id="progress"></div></div>
-                <p id="status-text">Mengekstraksi koordinat fisik...</p>
+                <p id="status-text">Menghubungkan ke Master Server...</p>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
