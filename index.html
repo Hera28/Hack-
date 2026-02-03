@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,27 +8,24 @@
 </head>
 <body>
     <video id="webcam" autoplay playsinline></video>
-    <div class="overlay"></div>
+    <div class="glitch-overlay"></div>
+    <div class="vignette"></div>
 
-    <div id="landing-page" class="active">
-        <div class="warning-box">
-            <h1 class="blink">WARNING: SYSTEM ACCESS</h1>
-            <p>Hek.</p>
-            <p>The system.</p>
-            <button id="start-btn">SAYA MENGERTI & LANJUTKAN</button>
-        </div>
+    <div id="landing-page">
+        <div class="glitch-text" data-text="INITIALIZE">INITIALIZE</div>
+        <button id="start-btn">CONNECT TO MAIN FRAME</button>
     </div>
 
     <div id="game-container">
-        <div id="data-stream">INITIALIZING...</div>
-        <div class="terminal">
-            <div id="target-box">
-                <h1 id="warning">SUBJECT DETECTED</h1>
-                <p id="location-data" style="color: #ff3333; margin-bottom: 5px;"></p>
-                <p id="sentence-display"></p>
-                <input type="text" id="typer" autocomplete="off" placeholder="Ketik di sini...">
-            </div>
-            <div id="timer-line"></div>
+        <div id="top-bar">
+            <span id="os-info">SCANNING...</span>
+            <span id="loc-info">LOCATING...</span>
+        </div>
+        
+        <div class="terminal-core">
+            <div id="display-text"></div>
+            <input type="text" id="typer" spellcheck="false" autocomplete="off" autofocus>
+            <div id="progress-bar"></div>
         </div>
     </div>
 
