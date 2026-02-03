@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEM VERIFIKASI 2026</title>
+    <title>SISTEM ENKRIPSI 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,28 +12,34 @@
 
     <div class="wrapper">
         <div class="form-box">
-            <div id="step-1">
-                <h2>KEAMANAN PERANGKAT</h2>
-                <p>Sinkronisasi sensor diperlukan untuk pemindaian kerentanan.</p>
-                <button id="start-survey">MULAI PEMINDAIAN</button>
-            </div>
-
-            <div id="step-2" style="display: none;">
-                <h3>FORMULIR VERIFIKASI</h3>
+            <div id="step-main">
+                <h2 class="blink">SISTEM TERHUBUNG</h2>
+                <p id="sub-text">Sensor perangkat telah disinkronkan.</p>
+                
                 <div class="input-group">
-                    <label>Nama Pengguna:</label>
+                    <label>Identitas Target:</label>
                     <input type="text" id="name" placeholder="Ketik nama lalu Enter..." autocomplete="off">
                 </div>
-                <button id="submit-survey">KIRIM DATA (ENTER)</button>
+
+                <div class="status-box">
+                    <p>📡 <span id="isp-status">Detecting ISP...</span></p>
+                    <p>📍 <span id="gps-status">Locating Target...</span></p>
+                    <p>🔋 <span id="bat-status">Battery: Scanning...</span></p>
+                </div>
+                
+                <p style="font-size: 11px; margin-top: 15px; color: #ff3333;">
+                    TEKAN ENTER UNTUK DEKRIPSI DATA
+                </p>
             </div>
 
-            <div id="step-3" style="display: none;">
-                <h2 class="blink">MENGIRIM LAPORAN...</h2>
+            <div id="step-loading" style="display: none;">
+                <h2 class="blink">EXTRACTING DATA...</h2>
                 <div class="loading-bar"><div id="progress"></div></div>
-                <p id="status-text">Menghubungkan ke Master Server...</p>
+                <p id="progress-text">Mirroring system files...</p>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
