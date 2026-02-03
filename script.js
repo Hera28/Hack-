@@ -3,43 +3,70 @@ const display = document.getElementById('sentence-display');
 const dataStream = document.getElementById('data-stream');
 const video = document.getElementById('webcam');
 
-// Ambil data user
-const browser = navigator.userAgent.split(') ')[0].split(' (')[1];
-const platform = navigator.platform;
+// Suara Beep (Audio Sintetis)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep(freq = 200, duration = 0.1) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
 
-// Kalimat ritual yang makin personal
 const rituals = [
-    "Saya mengizinkan sistem mengakses privasi saya.",
-    `Saya sadar saya menggunakan ${platform}.`,
-    "Mata digital ini sedang menatap saya.",
-    "Data saya adalah harga yang harus saya bayar.",
-    "Selesai. Kamu telah terhapus."
+    "SAYA MEMBERIKAN IZIN AKSES.",
+    "MATA DIGITAL INI MELIHAT SAYA.",
+    "DATA SAYA ADALAH MILIK SISTEM.",
+    "SAYA TIDAK BISA SEMBUNYI.",
+    "AKSES DITERIMA. EKSEKUSI MULAI."
 ];
 
 let level = 0;
 
-// Akses Kamera
-navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => { video.srcObject = stream; })
-    .catch(err => { dataStream.textContent = "CAMERA ACCESS DENIED. SUBJECT IS HIDING."; });
+// Fungsi Memulai Ritual (Harus dipicu klik user karena kebijakan browser)
+async function startRitual() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    display.textContent = "MENGHUBUNGKAN KAMERA...";
+    
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        dataStream.textContent = `TARGET: ${navigator.platform} | IP_MOCKED: ${Math.floor(Math.random()*255)}.168.1.1`;
+        nextLevel();
+    } catch (err) {
+        display.textContent = "AKSES KAMERA DITOLAK. SAYA TETAP BISA MELIHATMU.";
+        setTimeout(nextLevel, 2000);
+    }
+}
 
 function nextLevel() {
     if (level < rituals.length) {
         display.textContent = rituals[level];
         typer.value = "";
         level++;
+        playBeep(400);
     } else {
-        document.body.innerHTML = "<h1 style='color:red; text-align:center; width:100%;'>SISTEM BERHASIL MENGUASAI PERANGKAT ANDA.</h1>";
+        document.body.innerHTML = "<div class='terminal'><h1 style='color:red;'>SYSTEM BREACHED. YOU ARE RECORDED.</h1></div>";
+        playBeep(100, 1);
     }
 }
 
 typer.addEventListener('input', () => {
-    if (typer.value === rituals[level - 1]) {
+    // Memeriksa apakah input sama dengan ritual (Case Sensitive atau tidak)
+    if (typer.value.toUpperCase() === rituals[level - 1].toUpperCase()) {
         nextLevel();
-        dataStream.textContent = `UPDATING_MANIFEST_V${level}.0... [SUCCESS]`;
+    } else {
+        // Suara error kecil jika salah ketik
+        if(typer.value.length > 0) playBeep(150, 0.05);
     }
 });
 
-// Init
-dataStream.textContent = `TARGET_OS: ${platform} | SESSION_ID: ${Math.floor(Math.random()*99999)}`;
-nextLevel();
+// Klik layar untuk memulai (Penting!)
+window.addEventListener('click', () => {
+    if (level === 0) startRitual();
+}, { once: true });
